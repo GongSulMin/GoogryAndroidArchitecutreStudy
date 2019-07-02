@@ -5,5 +5,5 @@ import my.gong.studygong.data.source.upbit.UpbitRepository
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    single<UpbitDataSource> { UpbitRepository() }
+    single<UpbitDataSource> { UpbitRepository(get()) }
 }
