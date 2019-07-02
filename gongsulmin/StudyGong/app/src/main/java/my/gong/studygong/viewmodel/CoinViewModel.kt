@@ -3,6 +3,7 @@ package my.gong.studygong.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.reactivex.disposables.CompositeDisposable
 import my.gong.studygong.SingleLiveEvent
 import my.gong.studygong.data.model.Ticker
 import my.gong.studygong.data.source.upbit.UpbitDataSource
@@ -11,6 +12,8 @@ import java.util.*
 class CoinViewModel(
     private val upbitRepository: UpbitDataSource
 ) : ViewModel(){
+
+    private val compositeDisposable = CompositeDisposable()
 
     private val _tickerList = MutableLiveData<List<Ticker>>()
     val tickerList: LiveData<List<Ticker>>
@@ -85,13 +88,15 @@ class CoinViewModel(
     }
 
     fun loadBaseCurrency() {
-        upbitRepository.getCoinCurrency(
-            success = {
-                _baseCurrencyList.value = it
-            },
-            fail = {
-                errorMessage.value = it
-            }
+        compositeDisposable.add(
+            upbitRepository.getCoinCurrencyByRx(
+                success = {
+                    _baseCurrencyList.value = it
+                },
+                fail = {
+                    errorMessage.value = it
+                }
+            )
         )
     }
 
@@ -108,6 +113,12 @@ class CoinViewModel(
         loadCoin()
         dismissCoinMarketDialog.call()
     }
+
+    override fun onCleared() {
+        compositeDisposable.clear()
+        super.onCleared()
+    }
+
 
     companion object {
         const val REPEAT_INTERVAL_MILLIS = 3000L

@@ -1,17 +1,90 @@
 package my.gong.studygong.data.source.upbit
 
+import android.util.Log
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import my.gong.studygong.data.model.Ticker
 import my.gong.studygong.data.model.response.UpbitMarketResponse
 import my.gong.studygong.data.model.response.UpbitTickerResponse
-import my.gong.studygong.data.network.RetrofitProvider
+import my.gong.studygong.data.network.UpbitApi
 import retrofit2.Call
 import retrofit2.Response
 
-class UpbitRepository
+class UpbitRepository(
+    val upbitApi: UpbitApi
+)
     : UpbitDataSource {
 
     private var market: String? = null
     private var coinCurrencyList: List<String>? = null
+
+    override fun getCoinCurrency(
+        success: (List<String>) -> Unit,
+        fail: (String) -> Unit
+    ) {
+        if (coinCurrencyList == null) {
+            upbitApi.getMarket()
+                .enqueue(object : retrofit2.Callback<List<UpbitMarketResponse>> {
+                    override fun onResponse(
+                        call: Call<List<UpbitMarketResponse>>,
+                        response: Response<List<UpbitMarketResponse>>
+                    ) {
+                        response.body()?.let {
+                            coinCurrencyList =
+                                it.map {
+                                    it.market.substring(0, it.market.indexOf("-"))
+                                }
+                                    .distinct()
+                                    .toList()
+
+                            success.invoke(
+                                coinCurrencyList!!
+                            )
+                        }
+                    }
+
+                    override fun onFailure(call: Call<List<UpbitMarketResponse>>, t: Throwable) {
+                        fail.invoke(" 코인 정보 불가    ")
+                    }
+                })
+        } else {
+            success.invoke(coinCurrencyList!!)
+        }
+    }
+
+
+    override fun getCoinCurrencyByRx(
+        success: (List<String>) -> Unit,
+        fail: (String) -> Unit)
+        : Disposable {
+
+        return upbitApi.getMarketByRx()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                        success.invoke(
+                            it.map {
+                                it.market.substring(0 , it.market.indexOf("-"))
+                            }
+                                .distinct()
+                                .toList()
+                        )
+                        Log.e("RX", "" + it.map {
+                                                        it.market.substring(0, it.market.indexOf("-"))
+                                                    }
+                                                    .distinct()
+                                                    .toList()
+                        )
+                    } ,
+                    {
+                        fail.invoke(it.toString())
+
+                    }
+                )
+
+    }
 
     override fun getDetailTickers(
         tickerSearch: String,
@@ -21,7 +94,7 @@ class UpbitRepository
         getMarket(
             success = { market ->
                 this.market = market
-                RetrofitProvider.upbitApi.getTicker(market)
+                upbitApi.getTicker(market)
                     .enqueue(object : retrofit2.Callback<List<UpbitTickerResponse>> {
                         override fun onResponse(
                             call: Call<List<UpbitTickerResponse>>,
@@ -71,7 +144,7 @@ class UpbitRepository
         getMarket(
             success = { market ->
                 this.market = market
-                RetrofitProvider.upbitApi.getTicker(market)
+                upbitApi.getTicker(market)
                     .enqueue(object : retrofit2.Callback<List<UpbitTickerResponse>> {
                         override fun onResponse(
                             call: Call<List<UpbitTickerResponse>>,
@@ -111,7 +184,7 @@ class UpbitRepository
         fail: (String) -> Unit
     ) {
         if (market == null) {
-            RetrofitProvider.upbitApi.getMarket()
+            upbitApi.getMarket()
                 .enqueue(object : retrofit2.Callback<List<UpbitMarketResponse>> {
                     override fun onResponse(
                         call: Call<List<UpbitMarketResponse>>,
@@ -135,39 +208,6 @@ class UpbitRepository
         }
     }
 
-    override fun getCoinCurrency(
-        success: (List<String>) -> Unit,
-        fail: (String) -> Unit
-    ) {
-        if (coinCurrencyList == null) {
-            RetrofitProvider.upbitApi.getMarket()
-                .enqueue(object : retrofit2.Callback<List<UpbitMarketResponse>> {
-                    override fun onResponse(
-                        call: Call<List<UpbitMarketResponse>>,
-                        response: Response<List<UpbitMarketResponse>>
-                    ) {
-                        response.body()?.let {
-                            coinCurrencyList =
-                                it.map {
-                                    it.market.substring(0, it.market.indexOf("-"))
-                                }
-                                    .distinct()
-                                    .toList()
-
-                            success.invoke(
-                                coinCurrencyList!!
-                            )
-                        }
-                    }
-
-                    override fun onFailure(call: Call<List<UpbitMarketResponse>>, t: Throwable) {
-                        fail.invoke(" 코인 정보 불가    ")
-                    }
-                })
-        } else {
-            success.invoke(coinCurrencyList!!)
-        }
-    }
 }
 
 

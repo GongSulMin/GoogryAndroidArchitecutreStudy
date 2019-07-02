@@ -1,5 +1,6 @@
 package my.gong.studygong.data.source.upbit
 
+import io.reactivex.disposables.Disposable
 import my.gong.studygong.data.model.Ticker
 
 interface UpbitDataSource {
@@ -19,4 +20,9 @@ interface UpbitDataSource {
         success: (List<String>) -> Unit,
         fail: (String) -> Unit
     )
+
+    fun getCoinCurrencyByRx(
+        success: (List<String>) -> Unit,
+        fail: (String) -> Unit
+    ): Disposable
 }
