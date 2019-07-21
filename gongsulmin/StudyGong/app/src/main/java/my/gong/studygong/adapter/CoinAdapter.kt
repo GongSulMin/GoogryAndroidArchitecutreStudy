@@ -1,8 +1,11 @@
 package my.gong.studygong.adapter
 
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import my.gong.studygong.R
 import my.gong.studygong.data.model.Ticker
@@ -26,10 +29,22 @@ class CoinAdapter
     override fun getItemCount() = coinList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.viewDataBinding.ticker = coinList[position]
+        holder.viewDataBinding.item = coinList[position]
     }
 
     fun refreshData(coinList: List<Ticker>) {
+        val diffCallback: CoinDiffCallback = CoinDiffCallback(this.coinList , coinList)
+        val diffResult: DiffUtil.DiffResult = DiffUtil.calculateDiff(diffCallback)
+
+        this.coinList.run {
+            clear()
+            addAll(coinList)
+        }
+
+        Handler(Looper.getMainLooper()).post{
+            diffResult.dispatchUpdatesTo(this)
+        }
+
         this.coinList.run {
             clear()
             addAll(coinList)
@@ -37,6 +52,29 @@ class CoinAdapter
         notifyDataSetChanged()
     }
 
-    class ViewHolder(val viewDataBinding: ItemTickerBinding) :
-        androidx.recyclerview.widget.RecyclerView.ViewHolder(viewDataBinding.root)
+    class ViewHolder(val viewDataBinding: ItemTickerBinding) : RecyclerView.ViewHolder(viewDataBinding.root)
+
+    class CoinDiffCallback(newList: List<Ticker>, oldList: List<Ticker>) : DiffUtil.Callback() {
+
+        private var oldCoinList: List<Ticker> = oldList
+        private var newCoinList: List<Ticker> = newList
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldCoinList[oldItemPosition].market == newCoinList[oldItemPosition].market
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldCoinList[oldItemPosition].tradePrice == newCoinList[oldItemPosition].tradePrice
+        }
+
+        override fun getOldListSize(): Int {
+            return oldCoinList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newCoinList.size
+        }
+
+    }
+
 }
