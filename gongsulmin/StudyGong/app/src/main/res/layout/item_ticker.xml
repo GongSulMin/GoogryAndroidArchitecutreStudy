@@ -4,7 +4,7 @@
     <data>
 
         <variable
-                name="ticker"
+                name="item"
                 type="my.gong.studygong.data.model.Ticker"/>
     </data>
 
@@ -18,7 +18,7 @@
                 android:id="@+id/txt_item_ticker_market"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{ticker.market}"
+                android:text="@{item.market}"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toLeftOf="@+id/txt_item_ticker_opening_price"
                 app:layout_constraintTop_toTopOf="parent"
@@ -29,7 +29,7 @@
                 android:id="@+id/txt_item_ticker_opening_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{ticker.tradePrice}"
+                android:text="@{item.tradePrice}"
                 app:layout_constraintLeft_toRightOf="@+id/txt_item_ticker_market"
                 app:layout_constraintRight_toLeftOf="@+id/txt_item_ticker_change_price"
                 app:layout_constraintTop_toTopOf="@+id/txt_item_ticker_market"
@@ -40,7 +40,7 @@
                 android:id="@+id/txt_item_ticker_change_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{ticker.changeRate}"
+                android:text="@{item.changeRate}"
                 app:layout_constraintLeft_toRightOf="@+id/txt_item_ticker_opening_price"
                 app:layout_constraintRight_toLeftOf="@+id/txt_item_ticker_acc_trade_price"
                 app:layout_constraintTop_toTopOf="@+id/txt_item_ticker_market"

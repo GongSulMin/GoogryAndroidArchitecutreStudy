@@ -121,6 +121,6 @@ class CoinViewModel(
 
 
     companion object {
-        const val REPEAT_INTERVAL_MILLIS = 3000L
+        const val REPEAT_INTERVAL_MILLIS = 1000L
     }
 }

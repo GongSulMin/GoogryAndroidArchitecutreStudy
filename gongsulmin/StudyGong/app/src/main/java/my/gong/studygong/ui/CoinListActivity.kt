@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import my.gong.studygong.R
-import my.gong.studygong.adapter.CoinAdapter
+import my.gong.studygong.adapter.CoinAdapterByBase
 import my.gong.studygong.databinding.ActivityMainBinding
 import my.gong.studygong.viewmodel.CoinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -39,7 +39,7 @@ class CoinListActivity : AppCompatActivity() {
     }
 
     private fun init() {
-        viewDataBinding.recyclerviewMainTickerList.adapter = CoinAdapter()
+        viewDataBinding.recyclerviewMainTickerList.adapter = CoinAdapterByBase()
 
         coinViewModel.showCoinMarketDialog.observe(this, Observer {
             coinMarketDialog.show(supportFragmentManager, null)
