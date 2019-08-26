@@ -25,4 +25,7 @@ interface UpbitDataSource {
         success: (List<String>) -> Unit,
         fail: (String) -> Unit
     ): Disposable
+
+    suspend fun getCoinCurrencyByCoroutineDeferred(): List<String>
+
 }

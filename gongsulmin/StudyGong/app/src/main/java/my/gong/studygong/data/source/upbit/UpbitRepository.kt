@@ -19,6 +19,17 @@ class UpbitRepository(
     private var market: String? = null
     private var coinCurrencyList: List<String>? = null
 
+    override suspend fun getCoinCurrencyByCoroutineDeferred(): List<String> {
+        val upbitResponse = upbitApi.getMarketByCoroutineDeferred().await()
+        return upbitResponse.let {
+                    it.map {
+                        it.market.substring(0, it.market.indexOf("-"))
+                    }
+                        .distinct()
+                        .toList()
+        }
+    }
+
     override fun getCoinCurrency(
         success: (List<String>) -> Unit,
         fail: (String) -> Unit

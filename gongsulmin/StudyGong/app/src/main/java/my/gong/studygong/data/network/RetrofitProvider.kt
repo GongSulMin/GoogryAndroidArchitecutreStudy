@@ -1,5 +1,6 @@
 package my.gong.studygong.data.network
 
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -11,6 +12,7 @@ object RetrofitProvider {
         val retrofitBuilder = Retrofit.Builder()
             .baseUrl(UpbitApi.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(
                 OkHttpClient.Builder().addInterceptor(

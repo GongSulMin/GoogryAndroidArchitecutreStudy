@@ -1,6 +1,7 @@
 package my.gong.studygong.data.network
 
 import io.reactivex.Single
+import kotlinx.coroutines.Deferred
 import my.gong.studygong.data.model.response.UpbitMarketResponse
 import my.gong.studygong.data.model.response.UpbitTickerResponse
 import retrofit2.Call
@@ -14,6 +15,9 @@ interface UpbitApi {
 
     @GET("v1/market/all")
     fun getMarketByRx(): Single<List<UpbitMarketResponse>>
+
+    @GET("v1/market/all")
+    fun getMarketByCoroutineDeferred(): Deferred<List<UpbitMarketResponse>>
 
     @GET("v1/ticker")
     fun getTicker(@Query(value = "markets", encoded = true) tickers: String): Call<List<UpbitTickerResponse>>
