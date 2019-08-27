@@ -4,11 +4,16 @@ import android.util.Log
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import my.gong.studygong.data.DataResult
 import my.gong.studygong.data.model.Ticker
 import my.gong.studygong.data.model.response.UpbitMarketResponse
 import my.gong.studygong.data.model.response.UpbitTickerResponse
+import my.gong.studygong.data.model.response.toTicker
 import my.gong.studygong.data.network.UpbitApi
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 
 class UpbitRepository(
@@ -16,8 +21,69 @@ class UpbitRepository(
 )
     : UpbitDataSource {
 
+
     private var market: String? = null
     private var coinCurrencyList: List<String>? = null
+
+    override fun getTickers(
+        tickerCurrency: String,
+        success: (List<Ticker>) -> Unit,
+        fail: (String) -> Unit
+    ) {
+        getMarket(
+            success = { market ->
+                this.market = market
+                upbitApi.getTicker(market)
+                    .enqueue(object : retrofit2.Callback<List<UpbitTickerResponse>> {
+                        override fun onResponse(
+                            call: Call<List<UpbitTickerResponse>>,
+                            response: Response<List<UpbitTickerResponse>>
+                        ) {
+                            response.body()?.let { tickerResponse ->
+                                success.invoke(
+                                    tickerResponse
+                                        .filter {
+                                            it.market.startsWith(tickerCurrency)
+                                        }
+                                        .map {
+                                            it.toTicker()
+                                        }
+                                )
+                            } ?: fail.invoke("  Response Data is NULL ")
+                        }
+
+                        override fun onFailure(call: Call<List<UpbitTickerResponse>>, t: Throwable) {
+                            fail.invoke(" 코인 데이터 통신 불가    ")
+                        }
+                    })
+            },
+            fail = {
+                fail.invoke(it)
+            }
+        )
+    }
+
+    override suspend fun getTickersFlow(tickerCurrency: String): Flow<DataResult<List<Ticker>>> = flow {
+        val repoonse = upbitApi.getMarketByCoroutineFlow(getMarketDeffer())
+        try {
+           val datas = repoonse.body()?.let{
+                it.filter {
+                    it.market.startsWith(tickerCurrency)
+                }
+                .map {
+                    it.toTicker()
+                }
+            } ?: run {
+               listOf<Ticker>()
+            }
+
+           emit(DataResult.Success(datas))
+
+        }catch (e: Exception) {
+            e.printStackTrace()
+            emit(DataResult.Error(e))
+        }
+    }
 
     override suspend fun getCoinCurrencyByCoroutineDeferred(): List<String> {
         val upbitResponse = upbitApi.getMarketByCoroutineDeferred().await()
@@ -36,7 +102,7 @@ class UpbitRepository(
     ) {
         if (coinCurrencyList == null) {
             upbitApi.getMarket()
-                .enqueue(object : retrofit2.Callback<List<UpbitMarketResponse>> {
+                .enqueue(object : Callback<List<UpbitMarketResponse>> {
                     override fun onResponse(
                         call: Call<List<UpbitMarketResponse>>,
                         response: Response<List<UpbitMarketResponse>>
@@ -118,12 +184,7 @@ class UpbitRepository(
                                         it.market.endsWith(tickerSearch, ignoreCase = true)
                                     }
                                     .map {
-                                        Ticker(
-                                            it.market,
-                                            String.format("%.0f", it.tradePrice),
-                                            String.format("%4.2f", it.changeRate * 100),
-                                            String.format("%.5f", it.accTradePrice24h)
-                                        )
+                                        it.toTicker()
                                     }.let {
                                         if (it.isNotEmpty()) {
                                             success.invoke(
@@ -147,48 +208,16 @@ class UpbitRepository(
         )
     }
 
-    override fun getTickers(
-        tickerCurrency: String,
-        success: (List<Ticker>) -> Unit,
-        fail: (String) -> Unit
-    ) {
-        getMarket(
-            success = { market ->
-                this.market = market
-                upbitApi.getTicker(market)
-                    .enqueue(object : retrofit2.Callback<List<UpbitTickerResponse>> {
-                        override fun onResponse(
-                            call: Call<List<UpbitTickerResponse>>,
-                            response: Response<List<UpbitTickerResponse>>
-                        ) {
-                            response.body()?.let { tickerResponse ->
-                                success.invoke(
-                                    tickerResponse
-                                        .filter {
-                                            it.market.startsWith(tickerCurrency)
-                                        }
-                                        .map {
-                                            Ticker(
-                                                it.market,
-                                                String.format("%.0f", it.tradePrice),
-                                                String.format("%4.2f", it.changeRate * 100),
-                                                String.format("%.5f", it.accTradePrice24h)
-                                            )
-                                        }
-                                )
-                            } ?: fail.invoke("  Response Data is NULL ")
-                        }
-
-                        override fun onFailure(call: Call<List<UpbitTickerResponse>>, t: Throwable) {
-                            fail.invoke(" 코인 데이터 통신 불가    ")
-                        }
-                    })
-            },
-            fail = {
-                fail.invoke(it)
+    private suspend fun getMarketDeffer():String{
+        val reponse = upbitApi.getMarketCoroutine().await()
+        val data = reponse.let {
+             it.joinToString(","){
+                it.market
             }
-        )
+        }
+        return  data
     }
+
 
     private fun getMarket(
         success: (String) -> Unit,

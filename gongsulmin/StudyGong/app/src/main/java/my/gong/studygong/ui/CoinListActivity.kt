@@ -17,7 +17,6 @@ class CoinListActivity : AppCompatActivity() {
 
     private val coinViewModel: CoinViewModel by viewModel()
 
-
     private lateinit var viewDataBinding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

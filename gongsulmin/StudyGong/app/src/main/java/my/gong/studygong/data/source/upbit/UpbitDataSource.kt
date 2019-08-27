@@ -1,6 +1,8 @@
 package my.gong.studygong.data.source.upbit
 
 import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.flow.Flow
+import my.gong.studygong.data.DataResult
 import my.gong.studygong.data.model.Ticker
 
 interface UpbitDataSource {
@@ -27,5 +29,7 @@ interface UpbitDataSource {
     ): Disposable
 
     suspend fun getCoinCurrencyByCoroutineDeferred(): List<String>
+
+    suspend fun getTickersFlow(tickerCurrency: String): Flow<DataResult<List<Ticker>?>>
 
 }

@@ -1,6 +1,7 @@
 package my.gong.studygong.data.model.response
 
 import com.google.gson.annotations.SerializedName
+import my.gong.studygong.data.model.Ticker
 
 data class UpbitTickerResponse(
     @SerializedName("market") val market: String,
@@ -30,3 +31,16 @@ data class UpbitTickerResponse(
     @SerializedName("lowest_52_week_date") val lowest52WeekDate: String,
     @SerializedName("timestamp") val timestamp: Long
 )
+
+fun UpbitTickerResponse.toTicker(): Ticker{
+    return Ticker(
+        market,
+        String.format("%.0f", tradePrice),
+        String.format("%4.2f", changeRate * 100),
+        String.format("%.5f", accTradePrice24h)
+    )
+
+}
+
+
+

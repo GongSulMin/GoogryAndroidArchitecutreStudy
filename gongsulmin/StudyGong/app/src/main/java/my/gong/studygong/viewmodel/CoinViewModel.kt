@@ -1,10 +1,14 @@
 package my.gong.studygong.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
 import my.gong.studygong.SingleLiveEvent
+import my.gong.studygong.data.DataResult
 import my.gong.studygong.data.model.Ticker
 import my.gong.studygong.data.source.upbit.UpbitDataSource
 import java.util.*
@@ -60,15 +64,26 @@ class CoinViewModel(
     }
 
     fun loadTickerList(currency: String) {
-        upbitRepository.getTickers(
-            tickerCurrency = currency,
-            success = {
-                _tickerList.value = it
-            },
-            fail = {
-                errorMessage.value = it
+        runBlocking {
+                upbitRepository.getTickersFlow(currency).collect {
+                    if (it is DataResult.Success) {
+                        _tickerList.postValue(it.data)
+//                        _tickerList.value = it.data
+                    }else{
+                        Log.e("코루틴" , " 코루틴 실패다 이새키야 ")
+                    }
             }
-        )
+
+        }
+//        upbitRepository.getTickers(
+//            tickerCurrency = currency,
+//            success = {
+//                _tickerList.value = it
+//            },
+//            fail = {
+//                errorMessage.value = it
+//            }
+//        )
     }
 
     fun loadTickerSearchResult() {
@@ -87,17 +102,20 @@ class CoinViewModel(
         }
     }
 
-    fun loadBaseCurrency() {
-        compositeDisposable.add(
-            upbitRepository.getCoinCurrencyByRx(
-                success = {
-                    _baseCurrencyList.value = it
-                },
-                fail = {
-                    errorMessage.value = it
-                }
-            )
-        )
+     fun loadBaseCurrency() {
+         runBlocking {
+             _baseCurrencyList.value = upbitRepository.getCoinCurrencyByCoroutineDeferred()
+         }
+//        compositeDisposable.add(
+//            upbitRepository.getCoinCurrencyByRx(
+//                success = {
+//                    _baseCurrencyList.value = it
+//                },
+//                fail = {
+//                    errorMessage.value = it
+//                }
+//            )
+//        )
     }
 
     fun showCoinMarketDialog() {
