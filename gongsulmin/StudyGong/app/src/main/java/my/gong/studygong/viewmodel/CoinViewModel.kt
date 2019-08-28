@@ -4,8 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import my.gong.studygong.SingleLiveEvent
 import my.gong.studygong.data.DataResult
@@ -50,31 +54,44 @@ class CoinViewModel(
     private var timer: Timer = Timer()
 
     fun loadCoin() {
-        timer.cancel()
-        timer = Timer()
-        timer.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                loadTickerList(baseCurrency.value!!)
-            }
-        }, 0, REPEAT_INTERVAL_MILLIS)
+        loadTickerList(baseCurrency.value!!)
+
+//        timer.cancel()
+//        timer = Timer()
+//        timer.scheduleAtFixedRate(object : TimerTask() {
+//            override fun run() {
+//            }
+//        }, 0, REPEAT_INTERVAL_MILLIS)
     }
 
     fun onStop() {
-        timer.cancel()
+//        timer.cancel()
     }
 
     fun loadTickerList(currency: String) {
-        runBlocking {
-                upbitRepository.getTickersFlow(currency).collect {
-                    if (it is DataResult.Success) {
-                        _tickerList.postValue(it.data)
+//            viewModelScope.launch {
+//                upbitRepository.getTickersFlow(currency).collect {
+//                    if (it is DataResult.Success) {
+//                        Log.e("코루틴" , " 코루틴 성공 이새키야 ")
 //                        _tickerList.value = it.data
-                    }else{
+//                    }else{
+//                        Log.e("코루틴" , " 코루틴 실패다 이새키야 ")
+//                    }
+//                }
+//            }
+
+        viewModelScope.launch {
+            with(upbitRepository) {
+                getTickersChannel(currency).consumeEach {
+                    if (it is DataResult.Success) {
+                        _tickerList.value = it.data
+                    }else {
                         Log.e("코루틴" , " 코루틴 실패다 이새키야 ")
                     }
+                }
             }
-
         }
+
 //        upbitRepository.getTickers(
 //            tickerCurrency = currency,
 //            success = {
@@ -87,25 +104,43 @@ class CoinViewModel(
     }
 
     fun loadTickerSearchResult() {
-        if (searchTicker.value!!.isNotEmpty()) {
-            upbitRepository.getDetailTickers(
-                tickerSearch = searchTicker.value!!,
-                success = {
-                    _searchTickerList.value = it
-                },
-                fail = {
-                    errorMessage.value = it
+
+        viewModelScope.launch {
+            if (searchTicker.value!!.isNotEmpty()) {
+                val dataResult = upbitRepository.getDetailTickersByCoroutineDeferred(searchTicker.value!!)
+
+                if (dataResult is DataResult.Success && dataResult.data.isNotEmpty()) {
+                    _searchTickerList.value = dataResult.data
+                } else {
+                    errorMessage.value = "검색한 코인은 찾을수 없습니다!"
                 }
-            )
-        } else {
-            errorMessage.value = "검색한 코인은 찾을수 없습니다!"
+
+            } else {
+                errorMessage.value = "검색한 코인은 찾을수 없습니다!"
+            }
         }
+
+//        if (searchTicker.value!!.isNotEmpty()) {
+//            upbitRepository.getDetailTickers(
+//                tickerSearch = searchTicker.value!!,
+//                success = {
+//                    _searchTickerList.value = it
+//                },
+//                fail = {
+//                    errorMessage.value = it
+//                }
+//            )
+//        } else {
+//            errorMessage.value = "검색한 코인은 찾을수 없습니다!"
+//        }
     }
 
      fun loadBaseCurrency() {
-         runBlocking {
+
+         viewModelScope.launch {
              _baseCurrencyList.value = upbitRepository.getCoinCurrencyByCoroutineDeferred()
          }
+
 //        compositeDisposable.add(
 //            upbitRepository.getCoinCurrencyByRx(
 //                success = {

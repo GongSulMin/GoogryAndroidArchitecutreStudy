@@ -15,19 +15,23 @@ interface UpbitApi {
     fun getMarket(): Call<List<UpbitMarketResponse>>
 
     @GET("v1/market/all")
-    fun getMarketCoroutine(): Deferred<List<UpbitMarketResponse>>
+    fun getMarketCoroutineAsync(): Deferred<List<UpbitMarketResponse>>
 
     @GET("v1/market/all")
     fun getMarketByRx(): Single<List<UpbitMarketResponse>>
 
     @GET("v1/market/all")
-    fun getMarketByCoroutineDeferred(): Deferred<List<UpbitMarketResponse>>
+    fun getMarketByCoroutineDeferredAsync(): Deferred<List<UpbitMarketResponse>>
 
     @GET("v1/ticker")
     fun getTicker(@Query(value = "markets", encoded = true) tickers: String): Call<List<UpbitTickerResponse>>
 
     @GET("v1/ticker")
     suspend fun getMarketByCoroutineFlow(@Query(value = "markets", encoded = true) tickers: String): Response<List<UpbitTickerResponse>>
+
+    @GET("v1/ticker")
+    fun getDetailTickerByCorutineDeferredAsync(@Query(value = "markets", encoded = true) tickers: String): Deferred<List<UpbitTickerResponse>>
+
 
 //    @GET("v1/ticker")
 //    fun getTickerByRx(@Query(value = "markets", encoded = true) tickers: String): Observable<List<UpbitTickerResponse>>
