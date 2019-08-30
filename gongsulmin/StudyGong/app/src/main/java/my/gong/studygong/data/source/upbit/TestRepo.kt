@@ -6,13 +6,6 @@ import my.gong.studygong.data.network.RetrofitProvider.upbitApi
 
 class TestRepo() {
 
-    suspend fun getCoinCurrencyByCoroutinedeferred(): String {
-        val upbitResponse = upbitApi.getMarketByCoroutineDeferredAsync().await()
-         println("기다린다")
-        return  upbitResponse.map {
-            it.koreanName
-        }.toString()
-    }
 
     fun getCoinCurrencyByCoroutineFlow(): Flow<List<String>> = flow {
 //        val upbitResponse = upbitApi.getMarketByCoroutineFlow()

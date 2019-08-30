@@ -6,11 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import my.gong.studygong.SingleLiveEvent
 import my.gong.studygong.data.DataResult
 import my.gong.studygong.data.model.Ticker
@@ -51,106 +49,76 @@ class CoinViewModel(
 
     val searchTicker = MutableLiveData<String>("")
 
-    private var timer: Timer = Timer()
-
     fun loadCoin() {
         loadTickerList(baseCurrency.value!!)
-
-//        timer.cancel()
-//        timer = Timer()
-//        timer.scheduleAtFixedRate(object : TimerTask() {
-//            override fun run() {
-//            }
-//        }, 0, REPEAT_INTERVAL_MILLIS)
     }
 
     fun onStop() {
-//        timer.cancel()
     }
 
     fun loadTickerList(currency: String) {
-//            viewModelScope.launch {
-//                upbitRepository.getTickersFlow(currency).collect {
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    upbitRepository.getTickersFlow(currency).collect {
+                        when(it) {
+                            is DataResult.Success -> _tickerList.postValue(it.data)
+                            else -> println(" EROOR OR LOADING ")
+                        }
+                    }
+                }
+            }
+
+        /**
+         *
+         *          Channel 
+         */
+//        viewModelScope.launch {
+//            with(upbitRepository) {
+//                getTickersChannel(currency).consumeEach {
 //                    if (it is DataResult.Success) {
-//                        Log.e("코루틴" , " 코루틴 성공 이새키야 ")
 //                        _tickerList.value = it.data
-//                    }else{
+//                    }else {
 //                        Log.e("코루틴" , " 코루틴 실패다 이새키야 ")
 //                    }
 //                }
 //            }
-
-        viewModelScope.launch {
-            with(upbitRepository) {
-                getTickersChannel(currency).consumeEach {
-                    if (it is DataResult.Success) {
-                        _tickerList.value = it.data
-                    }else {
-                        Log.e("코루틴" , " 코루틴 실패다 이새키야 ")
-                    }
-                }
-            }
-        }
-
-//        upbitRepository.getTickers(
-//            tickerCurrency = currency,
-//            success = {
-//                _tickerList.value = it
-//            },
-//            fail = {
-//                errorMessage.value = it
-//            }
-//        )
+//        }
     }
 
     fun loadTickerSearchResult() {
 
         viewModelScope.launch {
             if (searchTicker.value!!.isNotEmpty()) {
-                val dataResult = upbitRepository.getDetailTickersByCoroutineDeferred(searchTicker.value!!)
+                withContext(Dispatchers.Main){
 
-                if (dataResult is DataResult.Success && dataResult.data.isNotEmpty()) {
-                    _searchTickerList.value = dataResult.data
-                } else {
-                    errorMessage.value = "검색한 코인은 찾을수 없습니다!"
+                    val dataResult = upbitRepository.getDetailTickersByCoroutineDeferred(searchTicker.value!!)
+
+                    if (dataResult is DataResult.Success && dataResult.data.isNotEmpty()) {
+                        _searchTickerList.value = dataResult.data
+                    } else {
+                        errorMessage.value = "검색한 코인은 찾을수 없습니다!"
+                    }
                 }
-
+                
             } else {
                 errorMessage.value = "검색한 코인은 찾을수 없습니다!"
             }
         }
-
-//        if (searchTicker.value!!.isNotEmpty()) {
-//            upbitRepository.getDetailTickers(
-//                tickerSearch = searchTicker.value!!,
-//                success = {
-//                    _searchTickerList.value = it
-//                },
-//                fail = {
-//                    errorMessage.value = it
-//                }
-//            )
-//        } else {
-//            errorMessage.value = "검색한 코인은 찾을수 없습니다!"
-//        }
     }
 
      fun loadBaseCurrency() {
-
          viewModelScope.launch {
-             _baseCurrencyList.value = upbitRepository.getCoinCurrencyByCoroutineDeferred()
+             withContext(Dispatchers.IO) {
+                 upbitRepository. getCoinMarket().collect {
+                     when(it) {
+                         is DataResult.Success -> {
+                             _baseCurrencyList.postValue(it.data)
+                         }
+                         else -> println(" ERROR or Loading ")
+                     }
+                 }
+             }
          }
-
-//        compositeDisposable.add(
-//            upbitRepository.getCoinCurrencyByRx(
-//                success = {
-//                    _baseCurrencyList.value = it
-//                },
-//                fail = {
-//                    errorMessage.value = it
-//                }
-//            )
-//        )
     }
 
     fun showCoinMarketDialog() {
