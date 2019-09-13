@@ -1,11 +1,9 @@
 package my.gong.studygong
 
-import my.gong.studygong.di.repositoryModule
-import org.junit.After
-import org.junit.Before
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
+import my.gong.studygong.data.source.upbit.TestRepo
 import org.junit.Test
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 
 /**
@@ -15,26 +13,20 @@ import org.koin.test.KoinTest
  */
 class ExampleUnitTest: KoinTest{
 
-    @Before
-    fun before() {
-        startKoin {
-            modules(
-                repositoryModule
-            )
-        }
-    }
-
-    @After
-    fun after() {
-        stopKoin()
-    }
-
     @Test
     fun addition_isCorrect() {
-        val hello = MyApplication()
+//        runBlocking {
+//            println(TestRepo().getCoinCurrencyByCoroutinedeferred())
+//        }
 
-        Thread.sleep(1000)
+        runBlocking {
+            TestRepo().getCoinCurrencyByCoroutineFlow().collect {
+                println(" 홀홀홀     ${it}")
+            }
+        }
 
+
+        println(" Test Finished   ")
     }
 }
 

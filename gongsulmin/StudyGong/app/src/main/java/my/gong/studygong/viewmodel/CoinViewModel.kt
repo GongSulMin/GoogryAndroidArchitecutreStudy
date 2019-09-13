@@ -1,19 +1,19 @@
 package my.gong.studygong.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import my.gong.studygong.SingleLiveEvent
 import my.gong.studygong.data.DataResult
 import my.gong.studygong.data.model.Ticker
 import my.gong.studygong.data.source.upbit.UpbitDataSource
-import java.util.*
 
 class CoinViewModel(
     private val upbitRepository: UpbitDataSource
@@ -49,6 +49,8 @@ class CoinViewModel(
 
     val searchTicker = MutableLiveData<String>("")
 
+    var job = SupervisorJob()
+
     fun loadCoin() {
         loadTickerList(baseCurrency.value!!)
     }
@@ -57,6 +59,7 @@ class CoinViewModel(
     }
 
     fun loadTickerList(currency: String) {
+        viewModelScope.coroutineContext
             viewModelScope.launch {
                 withContext(Dispatchers.IO) {
                     upbitRepository.getTickersFlow(currency).collect {

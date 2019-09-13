@@ -72,7 +72,7 @@ class UpbitRepository(
         }
     }
         .catch {
-            java.lang.Exception(it).printStackTrace()
+            Exception(it).printStackTrace()
             emit(DataResult.Error(Exception(it)))
         }
 
