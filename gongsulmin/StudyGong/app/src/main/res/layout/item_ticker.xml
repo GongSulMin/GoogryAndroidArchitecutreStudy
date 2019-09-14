@@ -2,10 +2,9 @@
 <layout>
 
     <data>
-
         <variable
                 name="item"
-                type="my.gong.studygong.data.model.Ticker"/>
+                type="gong.team.data.model.Ticker"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

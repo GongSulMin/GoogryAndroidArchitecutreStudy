@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import gong.team.data.model.Ticker
+import gong.team.data.source.upbit.UpbitDataSource
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -11,13 +13,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import my.gong.studygong.SingleLiveEvent
-import my.gong.studygong.data.DataResult
-import my.gong.studygong.data.model.Ticker
-import my.gong.studygong.data.source.upbit.UpbitDataSource
 
 class CoinViewModel(
     private val upbitRepository: UpbitDataSource
-) : ViewModel(){
+) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -60,20 +59,20 @@ class CoinViewModel(
 
     fun loadTickerList(currency: String) {
         viewModelScope.coroutineContext
-            viewModelScope.launch {
-                withContext(Dispatchers.IO) {
-                    upbitRepository.getTickersFlow(currency).collect {
-                        when(it) {
-                            is DataResult.Success -> _tickerList.postValue(it.data)
-                            else -> println(" EROOR OR LOADING ")
-                        }
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                upbitRepository.getTickersFlow(currency).collect {
+                    when (it) {
+                        is gong.team.data.DataResult.Success -> _tickerList.postValue(it.data)
+                        else -> println(" EROOR OR LOADING ")
                     }
                 }
             }
+        }
 
         /**
          *
-         *          Channel 
+         *          Channel
          */
 //        viewModelScope.launch {
 //            with(upbitRepository) {
@@ -92,36 +91,36 @@ class CoinViewModel(
 
         viewModelScope.launch {
             if (searchTicker.value!!.isNotEmpty()) {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
 
                     val dataResult = upbitRepository.getDetailTickersByCoroutineDeferred(searchTicker.value!!)
 
-                    if (dataResult is DataResult.Success && dataResult.data.isNotEmpty()) {
+                    if (dataResult is gong.team.data.DataResult.Success && dataResult.data.isNotEmpty()) {
                         _searchTickerList.value = dataResult.data
                     } else {
                         errorMessage.value = "검색한 코인은 찾을수 없습니다!"
                     }
                 }
-                
+
             } else {
                 errorMessage.value = "검색한 코인은 찾을수 없습니다!"
             }
         }
     }
 
-     fun loadBaseCurrency() {
-         viewModelScope.launch {
-             withContext(Dispatchers.IO) {
-                 upbitRepository. getCoinMarket().collect {
-                     when(it) {
-                         is DataResult.Success -> {
-                             _baseCurrencyList.postValue(it.data)
-                         }
-                         else -> println(" ERROR or Loading ")
-                     }
-                 }
-             }
-         }
+    fun loadBaseCurrency() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                upbitRepository.getCoinMarket().collect {
+                    when (it) {
+                        is gong.team.data.DataResult.Success -> {
+                            _baseCurrencyList.postValue(it.data)
+                        }
+                        else -> println(" ERROR or Loading ")
+                    }
+                }
+            }
+        }
     }
 
     fun showCoinMarketDialog() {

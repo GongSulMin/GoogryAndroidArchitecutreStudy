@@ -2,11 +2,11 @@ package my.gong.studygong
 
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import gong.team.data.model.Ticker
 import my.gong.studygong.adapter.CoinAdapter
 import my.gong.studygong.adapter.CoinAdapterByBase
 import my.gong.studygong.adapter.CoinListAdapter
 import my.gong.studygong.adapter.CoinMarketAdapter
-import my.gong.studygong.data.model.Ticker
 
 @BindingAdapter("setItems")
 fun <T> RecyclerView.setItems(list: T){

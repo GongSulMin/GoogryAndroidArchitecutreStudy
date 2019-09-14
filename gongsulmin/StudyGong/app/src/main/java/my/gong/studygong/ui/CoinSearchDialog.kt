@@ -5,17 +5,16 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import my.gong.studygong.R
 import my.gong.studygong.adapter.CoinAdapter
-import my.gong.studygong.base.BaseDialog
+import gong.team.android_common.BaseDialog
 import my.gong.studygong.databinding.DialogCoinDetailBinding
 import my.gong.studygong.viewmodel.CoinViewModel
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 /**
  *          Coin 검색 다이얼로그
  *
  */
 class CoinSearchDialog
-    : BaseDialog<DialogCoinDetailBinding>(R.layout.dialog_coin_detail) {
+    : gong.team.android_common.BaseDialog<DialogCoinDetailBinding>(R.layout.dialog_coin_detail) {
 
     private val coinViewModel: CoinViewModel by sharedViewModel()
 

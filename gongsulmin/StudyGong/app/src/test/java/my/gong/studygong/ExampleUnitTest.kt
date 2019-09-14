@@ -1,8 +1,7 @@
 package my.gong.studygong
 
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
-import my.gong.studygong.data.source.upbit.TestRepo
+import gong.team.data.source.upbit.TestRepo
 import org.junit.Test
 import org.koin.test.KoinTest
 
@@ -20,7 +19,7 @@ class ExampleUnitTest: KoinTest{
 //        }
 
         runBlocking {
-            TestRepo().getCoinCurrencyByCoroutineFlow().collect {
+            gong.team.data.source.upbit.TestRepo().getCoinCurrencyByCoroutineFlow().collect {
                 println(" 홀홀홀     ${it}")
             }
         }

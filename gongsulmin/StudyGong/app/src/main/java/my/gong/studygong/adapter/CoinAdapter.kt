@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import gong.team.data.model.Ticker
 import my.gong.studygong.R
-import my.gong.studygong.data.model.Ticker
 import my.gong.studygong.databinding.ItemTickerBinding
 
 class CoinAdapter

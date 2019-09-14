@@ -1,7 +1,7 @@
 package my.gong.studygong.di
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import my.gong.studygong.data.network.UpbitApi
+import gong.team.data.network.UpbitApi
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -23,6 +23,6 @@ val networkModule = module {
 //                    .build()
 //            )
             .build()
-            .create(UpbitApi::class.java)
+            .create(gong.team.data.network.UpbitApi::class.java)
     }
 }

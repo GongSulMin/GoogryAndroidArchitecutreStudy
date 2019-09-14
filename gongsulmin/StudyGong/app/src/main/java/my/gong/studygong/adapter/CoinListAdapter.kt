@@ -7,16 +7,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import my.gong.studygong.R
-import my.gong.studygong.data.model.Ticker
 import my.gong.studygong.databinding.ItemTickerBinding
 
 class CoinListAdapter
-    : ListAdapter<Ticker, CoinListAdapter.ViewHolder>(object : DiffUtil.ItemCallback<Ticker>() {
-    override fun areItemsTheSame(oldItem: Ticker, newItem: Ticker): Boolean {
+    : ListAdapter<gong.team.data.model.Ticker, CoinListAdapter.ViewHolder>(object : DiffUtil.ItemCallback<gong.team.data.model.Ticker>() {
+    override fun areItemsTheSame(oldItem: gong.team.data.model.Ticker, newItem: gong.team.data.model.Ticker): Boolean {
         return oldItem.market == newItem.market
     }
 
-    override fun areContentsTheSame(oldItem: Ticker, newItem: Ticker): Boolean {
+    override fun areContentsTheSame(oldItem: gong.team.data.model.Ticker, newItem: gong.team.data.model.Ticker): Boolean {
         return oldItem.tradePrice == newItem.tradePrice
     }
 }) {

@@ -1,12 +1,13 @@
 package my.gong.studygong.adapter
 
 import androidx.recyclerview.widget.DiffUtil
+import gong.team.android_common.BaseAdapter
+import gong.team.data.model.Ticker
+import my.gong.studygong.BR
 import my.gong.studygong.R
-import my.gong.studygong.base.BaseAdapter
-import my.gong.studygong.data.model.Ticker
 
 class CoinAdapterByBase
-    : BaseAdapter<Ticker>(DiffCallback()) {
+    : BaseAdapter<Ticker>(DiffCallback() , BR.item) {
 
     class DiffCallback: DiffUtil.ItemCallback<Ticker>(){
         override fun areItemsTheSame(oldItem: Ticker, newItem: Ticker): Boolean {
@@ -19,5 +20,4 @@ class CoinAdapterByBase
     }
 
     override fun getItemViewType(position: Int) = R.layout.item_ticker
-
 }

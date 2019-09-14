@@ -1,7 +1,7 @@
 package my.gong.studygong.di
 
-import my.gong.studygong.data.source.upbit.UpbitDataSource
-import my.gong.studygong.data.source.upbit.UpbitRepository
+import gong.team.data.source.upbit.UpbitDataSource
+import gong.team.data.source.upbit.UpbitRepository
 import org.koin.dsl.module
 
 val repositoryModule = module {

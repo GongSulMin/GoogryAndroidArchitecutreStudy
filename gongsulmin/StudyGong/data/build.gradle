@@ -1,0 +1,23 @@
+apply plugin: 'kotlin'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation  Libs.retrofit
+    implementation  Libs.retrofit_gson
+    implementation  Libs.retrofit_rxjava
+    implementation  Libs.retrofit_coroutine_adatper
+
+    implementation  Libs.okhttp_logging
+    implementation  Libs.okhttp
+
+    // reactiveX
+    implementation Libs.rxandroid
+    implementation Libs.rxjava
+    implementation Libs.rxkotlin
+
+    //coroutine
+    implementation Libs.coroutine_core
+    implementation Libs.coroutine_android
+
+}
